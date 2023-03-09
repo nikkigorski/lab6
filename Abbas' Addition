@@ -1,0 +1,205 @@
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+
+/**
+ * BinarySearchTree.java
+ * 
+ * @author abbasjabor Seth Tedder Nikki Gorski
+ * @version 1 March 2023
+ */
+public class BinarySearchTree<E> {
+	protected Node<E> root;
+
+	// nested class for a tree node
+	protected static class Node<E> {
+		E data;
+		Node<E> left;
+		Node<E> right;
+
+		// Node constructor
+		public Node(E data) {
+			this.data = data;
+			left = null;
+			right = null;
+		}
+
+	}
+
+	// BinaryTree Constructor
+	public BinarySearchTree() {
+		root = null;
+	}
+
+	/**
+	 * Prints out the tree in post order
+	 * 
+	 * @param root the tree
+	 */
+	public void postorder(Node<E> root) {
+		if (root == null) {
+			return;
+		}
+		postorder(root.left);
+		postorder(root.right);
+		System.out.print(root.data + " ");
+	}
+
+	/**
+	 * used to visit the tree level by level from left to right. the order of this
+	 * method is O(N) because it needs to visit every node in the tree.
+	 * 
+	 * @return an arraylist of the order of the tree level by level
+	 */
+	public ArrayList<E> bfs() {
+		ArrayList<E> result = new ArrayList<>();
+		if (root == null) {
+			return result;
+		}
+		Queue<Node<E>> queue = new LinkedList<>();
+		queue.offer(root);
+		while (!queue.isEmpty()) {
+			Node<E> node = queue.poll();
+			result.add(node.data);
+			if (node.left != null) {
+				queue.offer(node.left);
+			}
+			if (node.right != null) {
+				queue.offer(node.right);
+			}
+		}
+		return result;
+
+	}
+
+	/**
+	 * a base method that will call on the other isIdentical method to specifically
+	 * compare the other tree with the "root" tree.
+	 * 
+	 * Overall time complexity of this method is O(N) because it needs to traverse
+	 * the entire tree
+	 * 
+	 * @param anotherTree the other tree
+	 * @return T or F if
+	 */
+	public boolean isIdentical(Node<E> anotherTree) {
+		return isIdentical(root, anotherTree);
+	}
+
+	/**
+	 * Used to compare the values between two trees
+	 * 
+	 * @param node1 tree
+	 * @param node2 another tree
+	 * @return both true or false values from the left and right side of the tree
+	 */
+	private boolean isIdentical(Node<E> node1, Node<E> node2) {
+		if (node1 == null && node2 == null) {
+			return true;
+		}
+		if (node1 == null || node2 == null) {
+			return false;
+		}
+		if (!node1.data.equals(node2.data)) {
+			return false;
+		}
+		boolean left = isIdentical(node1.left, node2.left);
+		boolean right = isIdentical(node1.right, node2.right);
+		return left && right;
+	}
+
+	/**
+	 * numLeaves returns the number of leaves inside a tree. This method traverse
+	 * the tree recursively exactly once so the notation is O(N)
+	 * 
+	 * @param node the tree
+	 * @return the number of leaves in the tree
+	 */
+	private int numLeaves(Node<E> node) {
+		if (node == null) {
+			return 0;
+		}
+		if (node.left == null && node.right == null) {
+			return 1;
+		}
+		int leftLeaves = numLeaves(node.left);
+		int rightLeaves = numLeaves(node.right);
+		return leftLeaves + rightLeaves;
+	}
+
+	/**
+	 * Method calls on similar method to find amount of internal nodes in the the.
+	 * This method is specific to the tree "root". The time complexity is O(N) it
+	 * visit each node once.
+	 * 
+	 * @return the number of internal nodes in the "root" tree
+	 */
+	public int numInternal() {
+		return numInternal(root);
+	}
+
+	/**
+	 * True method used for finding the number of internal nodes in a tree. The time
+	 * complexity is O(N) it visit each node once.
+	 * 
+	 * @param node the tree
+	 * @return the number of internal nodes for this tree
+	 */
+	private int numInternal(Node<E> node) {
+		if (node == null) {
+			return 0;
+		}
+		if (node.left == null && node.right == null) {
+			return 0;
+		}
+		return 1 + numInternal(node.left) + numInternal(node.right);
+	}
+
+	/**
+	 * clears a tree by making it null
+	 */
+	public void clear() {
+		root = null;
+	}
+
+	// Testing out all the methods
+	public static void main(String[] args) {
+		BinarySearchTree<Integer> tree = new BinarySearchTree<Integer>();
+
+		// insert some elements into the tree
+		tree.root = new BinarySearchTree.Node<Integer>(4);
+		tree.root.left = new BinarySearchTree.Node<Integer>(2);
+		tree.root.right = new BinarySearchTree.Node<Integer>(5);
+		tree.root.left.left = new BinarySearchTree.Node<Integer>(1);
+		tree.root.left.right = new BinarySearchTree.Node<Integer>(3);
+
+		// test postorder method
+		System.out.print("Postorder traversal: ");
+		tree.postorder(tree.root);
+		System.out.println();
+
+		// test bfs method
+		System.out.println("BFS traversal: " + tree.bfs());
+
+		// create another tree for testing isIdentical method
+		BinarySearchTree<Integer> anotherTree = new BinarySearchTree<Integer>();
+		anotherTree.root = new BinarySearchTree.Node<Integer>(4);
+		anotherTree.root.left = new BinarySearchTree.Node<Integer>(2);
+		anotherTree.root.right = new BinarySearchTree.Node<Integer>(5);
+		anotherTree.root.left.left = new BinarySearchTree.Node<Integer>(1);
+		anotherTree.root.left.right = new BinarySearchTree.Node<Integer>(3);
+
+		// test isIdentical method
+		System.out.println("Are the trees identical? " + tree.isIdentical(anotherTree.root));
+
+		// test numLeaves method
+		System.out.println("Number of leaves: " + tree.numLeaves(tree.root));
+
+		// test numInternal method
+		System.out.println("Number of internal nodes: " + tree.numInternal());
+
+		// test clear method
+		tree.clear();
+		System.out.println("Tree after clear: " + tree.bfs());
+	}
+}
